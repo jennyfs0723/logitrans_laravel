@@ -27,7 +27,7 @@ COPY . .
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction
 
 # Configurar el DocumentRoot de Apache apuntando a /public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
