@@ -2,30 +2,27 @@
 
 namespace App\Models;
 
-use Database\Factories\VehiculoFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
-#[Fillable([
-    'registro_unico',
-    'marca',
-    'modelo',
-    'anio',
-    'capacidad_carga',
-    'consumo_promedio_combustible',
-    'numero_placa',
-    'fecha_adquisicion',
-    'km_actual',
-    'estado_operativo',
-    'tipo_vehiculo',
-])]
 class Vehiculo extends Model
 {
-
     use HasFactory;
+
+    protected $fillable = [
+        'registro_unico',
+        'marca',
+        'modelo',
+        'anio',
+        'capacidad_carga',
+        'consumo_promedio_combustible',
+        'numero_placa',
+        'fecha_adquisicion',
+        'km_actual',
+        'estado_operativo',
+        'tipo_vehiculo',
+    ];
 
     protected function casts(): array
     {
@@ -37,7 +34,6 @@ class Vehiculo extends Model
         ];
     }
 
- 
     public function rutas(): HasMany
     {
         return $this->hasMany(RutaDistribucion::class, 'vehiculo_id');

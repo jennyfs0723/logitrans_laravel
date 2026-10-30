@@ -2,98 +2,94 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cliente;
 use App\Models\Envio;
-use App\Models\RutaDistribucion;
+use App\Models\Cliente;
+use App\Models\Conductor;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class EnvioController extends Controller
 {
-   
     public function index()
     {
-        $envios = Envio::with(['cliente', 'ruta'])
-            ->latest()
-            ->paginate(10);
-
+        $envios = Envio::with('cliente')->latest('fecha_hora_recepcion')->paginate(10);
         return view('envios.index', compact('envios'));
     }
 
-  
     public function create()
     {
-        $clientes = Cliente::select('id', 'tipo_cliente', 'nombre_o_razon_social', 'telefono', 'email')->get();
-        $rutas = RutaDistribucion::select('id', 'codigo', 'nombre_ruta')->get();
+        $clientes = Cliente::all();
+        $conductorDisponible = Conductor::where('estado_conductor', 'disponible')->first();
 
-        return view('envios.create', compact('clientes', 'rutas'));
+        return view('envios.create', compact('clientes', 'conductorDisponible'));
     }
 
-    
     public function store(Request $request)
     {
+        $ultimoId = Envio::max('id') ?? 0;
+        $numeroGuia = 'GUI-' . str_pad($ultimoId + 1, 6, '0', STR_PAD_LEFT);
+
         $validated = $request->validate([
-            'numero_guia'              => 'required|string|max:80|unique:envios,numero_guia',
-            'fecha_hora_recepcion'     => 'required|date',
-            'remitente'                => 'required|string|max:80',
-            'destinatario'             => 'required|string|max:80',
-            'direccion_origen'         => 'required|string|max:80',
-            'direccion_entrega'        => 'required|string|max:80',
-            'tipo_servicio'            => 'required|string|max:50',
-            'descripcion_contenido'    => 'nullable|string',
-            'peso'                     => 'required|numeric|min:0',
-            'dimensiones'              => 'required|string|max:80',
-            'costo'                    => 'required|numeric|min:0',
-            'forma_pago'               => 'required|string|max:50',
-            'estado_actual'            => 'required|string|max:50',
-            'instrucciones_especiales' => 'nullable|string',
             'cliente_id'               => 'required|exists:clientes,id',
-            'ruta_distribucion_id'     => 'required|exists:ruta_distribucions,id',
+            'remitente'                => 'required|string|max:20',
+            'destinatario'             => 'required|string|max:20',
+            'direccion_origen'         => 'required|string|max:50',
+            'direccion_entrega'        => 'required|string|max:50',
+            'tipo_servicio'            => 'required|in:normal,express,mismo dia',
+            'descripcion_contenido'    => 'required|string|max:200',
+            'peso'                     => 'required|numeric|min:0.1',
+            'dimensiones'              => 'required|string|max:255',
+            'valor_declarado'          => 'required|numeric|min:0',
+            'costo'                    => 'required|numeric|min:0',
+            'forma_pago'               => 'required|in:contra entrega,transferencia,efectivo,tarjeta',
+            'instrucciones_especiales' => 'nullable|string|max:200',
         ]);
+
+        $validated['numero_guia']          = $numeroGuia;
+        $validated['fecha_hora_recepcion'] = now();
+        $validated['estado_actual']        = 'recibido';
+        $validated['ruta_distribucion_id'] = $request->ruta_distribucion_id ?? 1;
+
+        // Asignación automática de conductor si hay disponible
+        $conductor = Conductor::where('estado_conductor', 'disponible')->first();
+        if ($conductor) {
+            $conductor->update(['estado_conductor' => 'en ruta']);
+        }
 
         Envio::create($validated);
 
         return redirect()->route('envios.index')
-            ->with('success', 'Envío registrado exitosamente.');
+            ->with('success', "Guía $numeroGuia registrada exitosamente.");
     }
 
-   
     public function show(Envio $envio)
     {
-        $envio->load(['cliente', 'ruta', 'seguimientos.conductor']);
-
+        $envio->load('cliente');
         return view('envios.show', compact('envio'));
     }
 
-  
     public function edit(Envio $envio)
     {
-        $clientes = Cliente::select('id', 'tipo_cliente', 'nombre_o_razon_social')->get();
-        $rutas = RutaDistribucion::select('id', 'codigo', 'nombre_ruta')->get();
-
-        return view('envios.edit', compact('envio', 'clientes', 'rutas'));
+        $clientes = Cliente::all();
+        return view('envios.edit', compact('envio', 'clientes'));
     }
 
-  
     public function update(Request $request, Envio $envio)
     {
         $validated = $request->validate([
-            'numero_guia'              => ['required', 'string', 'max:80', Rule::unique('envios')->ignore($envio->id)],
-            'fecha_hora_recepcion'     => 'required|date',
-            'remitente'                => 'required|string|max:80',
-            'destinatario'             => 'required|string|max:80',
-            'direccion_origen'         => 'required|string|max:80',
-            'direccion_entrega'        => 'required|string|max:80',
-            'tipo_servicio'            => 'required|string|max:50',
-            'descripcion_contenido'    => 'nullable|string',
-            'peso'                     => 'required|numeric|min:0',
-            'dimensiones'              => 'required|string|max:80',
-            'costo'                    => 'required|numeric|min:0',
-            'forma_pago'               => 'required|string|max:50',
-            'estado_actual'            => 'required|string|max:50',
-            'instrucciones_especiales' => 'nullable|string',
             'cliente_id'               => 'required|exists:clientes,id',
-            'ruta_distribucion_id'     => 'required|exists:ruta_distribucions,id',
+            'remitente'                => 'required|string|max:20',
+            'destinatario'             => 'required|string|max:20',
+            'direccion_origen'         => 'required|string|max:50',
+            'direccion_entrega'        => 'required|string|max:50',
+            'tipo_servicio'            => 'required|in:normal,express,mismo dia',
+            'descripcion_contenido'    => 'required|string|max:200',
+            'peso'                     => 'required|numeric|min:0.1',
+            'dimensiones'              => 'required|string|max:255',
+            'valor_declarado'          => 'required|numeric|min:0',
+            'costo'                    => 'required|numeric|min:0',
+            'forma_pago'               => 'required|in:contra entrega,transferencia,efectivo,tarjeta',
+            'estado_actual'            => 'required|in:recibido,en transito,entregado',
+            'instrucciones_especiales' => 'nullable|string|max:200',
         ]);
 
         $envio->update($validated);
@@ -102,16 +98,25 @@ class EnvioController extends Controller
             ->with('success', 'Envío actualizado exitosamente.');
     }
 
-   
     public function destroy(Envio $envio)
-    {
-        if ($envio->seguimientos()->exists()) {
-            return back()->with('error', 'No se puede eliminar el envío porque ya registra historial de seguimiento.');
-        }
-
+{
+    try {
+        // Intentamos eliminar el envío
         $envio->delete();
 
         return redirect()->route('envios.index')
-            ->with('success', 'Envío eliminado correctamente.');
+            ->with('success', '¡Envío eliminado exitosamente!');
+            
+    } catch (\Illuminate\Database\QueryException $e) {
+        // Si hay un error de llave foránea (integridad referencial)
+        if ($e->getCode() == "23000") {
+            return redirect()->route('envios.index')
+                ->with('warning', '¡No puedes eliminar este envío porque se encuentra asociado a una ruta o seguimiento!');
+        }
+        
+        // Si es otro tipo de error de base de datos
+        return redirect()->route('envios.index')
+            ->with('error', 'Ocurrió un error al intentar eliminar el envío.');
     }
+}
 }
