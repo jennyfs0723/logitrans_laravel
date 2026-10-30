@@ -55,10 +55,16 @@ class EnvioController extends Controller
             $conductor->update(['estado_conductor' => 'en ruta']);
         }
 
-        Envio::create($validated);
+        $envio = Envio::create($validated);
 
-        return redirect()->route('envios.index')
-            ->with('success', "Guía $numeroGuia registrada exitosamente.");
+        // Redirección condicional según el flujo (Administrador logueado vs Invitado anónimo)
+        if (auth()->check()) {
+            return redirect()->route('envios.index')
+                ->with('success', "Guía $numeroGuia registrada exitosamente.");
+        } else {
+            return redirect()->route('welcome')
+                ->with('success', "¡Pedido generado con éxito! Tu número de guía es: $numeroGuia");
+        }
     }
 
     public function show(Envio $envio)

@@ -33,7 +33,7 @@ class ClienteController extends Controller
             'email'                 => 'required|email|max:255|unique:clientes,email',
             'direccion_fiscal'      => 'required|string|max:255',
         ], [
-            'telefono.numeric'        => 'El teléfono debe contener únicamente números.',
+            'telefono.numeric'      => 'El teléfono debe contener únicamente números.',
             'telefono.digits_between' => 'El teléfono debe tener entre 7 y 15 dígitos.',
         ]);
 
@@ -42,10 +42,15 @@ class ClienteController extends Controller
 
         Cliente::create($validated);
 
-        return redirect()->route('clientes.index')
-            ->with('success', "Cliente registrado con el código $codigoAutogenerado exitosamente.");
+        // 4. Redirección condicional según el flujo (Administrador vs Invitado anónimo)
+        if (auth()->check()) {
+            return redirect()->route('clientes.index')
+                ->with('success', "Cliente registrado con el código $codigoAutogenerado exitosamente.");
+        } else {
+            return redirect()->route('envios.create')
+                ->with('success', "¡Cliente registrado con éxito! Ahora completa los datos de tu envío.");
+        }
     }
-
     public function show(Cliente $cliente)
     {
         return view('clientes.show', compact('cliente'));

@@ -108,6 +108,20 @@
             </div>
         </nav>  
         </header>
+        <!-- AQUI AGREGAMOS LA ALERTA PARA QUE APAREZCA EN EL WELCOME -->
+        @if (session('success'))
+            <div class="container mt-4">
+                <div class="alert alert-success alert-dismissible fade show shadow-lg border-0 bg-success text-white" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill fs-4"></i>
+                        <div>
+                            <strong>¡Excelente!</strong> {{ session('success') }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        @endif
 
         <!-- SECCIÓN PORTADA / HERO -->
         <header class="container text-center py-5 my-auto">
