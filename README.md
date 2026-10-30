@@ -94,6 +94,9 @@ rutas:
 <img width="1365" height="593" alt="image" src="https://github.com/user-attachments/assets/c3368c00-c6e0-4754-8ef9-5a62f5da21d6" />
 seguimientos:
 <img width="1365" height="596" alt="image" src="https://github.com/user-attachments/assets/077efde9-2e53-417c-84e8-89b0217dcf9b" />
+Funcionalidad del testing:
+<img width="1003" height="173" alt="image" src="https://github.com/user-attachments/assets/151af16b-c9e5-4791-ad2e-12f7e2b2c767" />
+
 
 
 
