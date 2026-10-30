@@ -77,10 +77,24 @@ class RutaDistribucionController extends Controller
             ->with('success', 'Ruta de distribución actualizada correctamente.');
     }
 
-    public function destroy(RutaDistribucion $ruta)
+    public function destroy($id) // O RutaDistribucion $ruta (dependiendo de cómo recibas el parámetro)
     {
-        $ruta->delete();
-        return redirect()->route('rutas.index')
-            ->with('success', 'Ruta de distribución eliminada correctamente.');
+        // Buscar la ruta si usas inyección de modelos o por id
+        $ruta = RutaDistribucion::findOrFail($id);
+
+        // Verificar si la ruta tiene envíos asociados
+        if ($ruta->envios()->count() > 0) {
+            return redirect()->route('rutas.index')
+                ->with('error', 'No puedes eliminar esta ruta porque tiene envíos activos asociados.');
+        }
+
+        try {
+            $ruta->delete();
+            return redirect()->route('rutas.index')
+                ->with('success', 'Ruta de distribución eliminada exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('rutas.index')
+                ->with('error', 'Ocurrió un error al intentar eliminar la ruta.');
+        }
     }
 }

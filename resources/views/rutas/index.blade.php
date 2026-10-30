@@ -17,10 +17,27 @@
         <main class="container mt-5">
             <h1 class="mb-4">Rutas de Distribución</h1>
 
+           
+            @if (session('error'))
+                <div class="alert alert-dismissible fade show mb-4 border" style="background-color: #2a1215; border-color: #5c1d24 !important; color: #ffb3b8;" role="alert">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            {{ session('error') }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Alerta de Éxito -->
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="alert alert-success alert-dismissible fade show shadow-lg border-0 bg-success text-white mb-4" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <div>
+                            <strong>¡Éxito!</strong> {{ session('success') }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
@@ -83,11 +100,12 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const alert = document.querySelector('.alert-success');
-                if (alert) {
+                const successAlert = document.querySelector('.alert-success');
+                if (successAlert) {
                     setTimeout(() => {
-                        bootstrap.Alert.getOrCreateInstance(alert).close();
-                    }, 1000);
+                        const alertInstance = bootstrap.Alert.getOrCreateInstance(successAlert);
+                        if (alertInstance) alertInstance.close();
+                    }, 4000);
                 }
             });
         </script>

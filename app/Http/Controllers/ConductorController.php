@@ -81,8 +81,20 @@ class ConductorController extends Controller
 
     public function destroy(Conductor $conductor)
     {
-        $conductor->delete();
-        return redirect()->route('conductores.index')
-            ->with('success', 'Conductor eliminado correctamente.');
+        // Verificar si el conductor tiene rutas de distribución asociadas
+        if ($conductor->rutas()->count() > 0) {
+            return redirect()->route('conductores.index')
+                ->with('error', 'No puedes eliminar este conductor porque tiene rutas de distribución activas asociadas.');
+        }
+
+        try {
+            $conductor->delete();
+            return redirect()->route('conductores.index')
+                ->with('success', 'Conductor eliminado exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('conductores.index')
+                ->with('error', 'Ocurrió un error al intentar eliminar el conductor.');
+        }
     }
 }
+
