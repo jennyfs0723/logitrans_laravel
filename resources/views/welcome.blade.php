@@ -129,7 +129,6 @@
                 <div class="col-lg-10">
                     <h1 class="display-3 fw-bold text-white mb-3">Envíos seguros y logística inteligente</h1>
                     <p class="lead text-light mb-4 fs-4">Garantizamos seguridad, confiabilidad y rapidez.</p>
-                    <a href="{{ route('envios.create') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 py-2 fw-bold">Solicitar mi envío</a>
                 </div>
             </div>
         </header>
