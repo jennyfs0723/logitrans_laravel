@@ -14,7 +14,7 @@
     </head>
 
     <body class="bg-dark text-light">
-        <main class="container mt-5">
+        <main class="container mt-5 mb-5">
             <h1 class="mb-4">Registrar Nuevo Envío</h1>
 
             @if ($errors->any())
@@ -138,7 +138,7 @@
                                 @error('costo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
-                            <!-- Forma de Pago (ENUM en minúscula) -->
+                            <!-- Forma de Pago -->
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Forma de Pago</label>
                                 <select name="forma_pago" class="form-select @error('forma_pago') is-invalid @enderror" required>
@@ -158,22 +158,31 @@
                             </div>
                         </div>
 
+                        <!-- Botones de Acción dentro del formulario -->
                         <div class="mt-4 d-flex justify-content-end gap-2">
-                            <a href="{{ route('envios.index') }}" class="btn btn-secondary">Cancelar</a>
+                            @auth
+                                <a href="{{ route('envios.index') }}" class="btn btn-secondary">Cancelar</a>
+                            @else
+                                <a href="{{ url('/') }}" class="btn btn-secondary">Cancelar</a>
+                            @endauth
                             <button type="submit" class="btn btn-success fw-bold">Guardar Envío</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            @php
-                $previousUrl = url()->previous();
-                $isFromWelcome = str_contains($previousUrl, route('welcome')) || $previousUrl == url('/');
-            @endphp
-
-            <a href="{{ $isFromWelcome ? url('/') : route('envios.index') }}" class="btn btn-secondary">
-                Volver
-            </a>
+            <!-- Botón de Volver Inteligente -->
+            <div class="mt-3">
+                @auth
+                    <a href="{{ route('envios.index') }}" class="btn btn-secondary">
+                        Volver al Panel
+                    </a>
+                @else
+                    <a href="{{ url('/') }}" class="btn btn-secondary">
+                        Volver al Inicio
+                    </a>
+                @endauth
+            </div>
         </main>
 
         <script>

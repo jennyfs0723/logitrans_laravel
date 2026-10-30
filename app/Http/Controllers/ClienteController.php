@@ -18,7 +18,7 @@ class ClienteController extends Controller
         return view('clientes.create');
     }
 
-    public function store(Request $request)
+ public function store(Request $request)
     {
         // 1. Generar automáticamente el código consecutivo (ej. C-001, C-002)
         $ultimoId = Cliente::max('id') ?? 0;
@@ -26,7 +26,7 @@ class ClienteController extends Controller
 
         // 2. Validar campos (teléfono solo números)
         $validated = $request->validate([
-            'tipo_cliente'          => 'required|in:individual,empresarial',
+            'tipo_cliente'          => 'required|in:individual,empresa,empresarial',
             'nombre_o_razon_social' => 'required|string|max:255',
             'rut_o_dni'             => 'required|string|max:20|unique:clientes,rut_o_dni',
             'telefono'              => 'required|numeric|digits_between:7,15',
@@ -40,17 +40,18 @@ class ClienteController extends Controller
         // 3. Asignar el código generado
         $validated['codigo_unico'] = $codigoAutogenerado;
 
-        Cliente::create($validated);
+        $cliente = Cliente::create($validated); 
 
-        // 4. Redirección condicional según el flujo (Administrador vs Invitado anónimo)
+        // 4. Redirección condicional inteligente según el flujo
         if (auth()->check()) {
             return redirect()->route('clientes.index')
-                ->with('success', "Cliente registrado con el código $codigoAutogenerado exitosamente.");
+                ->with('success', "Cliente registrado exitosamente. Código: {$cliente->codigo_unico}");
         } else {
             return redirect()->route('envios.create')
-                ->with('success', "¡Cliente registrado con éxito! Ahora completa los datos de tu envío.");
+                ->with('success', "¡Registro exitoso! Ahora completa los datos de tu envío.");
         }
     }
+
     public function show(Cliente $cliente)
     {
         return view('clientes.show', compact('cliente'));
@@ -81,10 +82,22 @@ class ClienteController extends Controller
             ->with('success', 'Cliente actualizado exitosamente.');
     }
 
-    public function destroy(Cliente $cliente)
+public function destroy(Cliente $cliente)
     {
-        $cliente->delete();
-        return redirect()->route('clientes.index')
-            ->with('success', 'Cliente eliminado correctamente.');
+        // Verificar si el cliente tiene envíos asociados
+        if ($cliente->envios()->count() > 0) {
+            return redirect()->route('clientes.index')
+                ->with('error', 'No puedes eliminar cliente porque tiene un envío activo.');
+        }
+
+        try {
+            $cliente->delete();
+            return redirect()->route('clientes.index')
+                ->with('success', 'Cliente eliminado exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('clientes.index')
+                ->with('error', 'Ocurrió un error al intentar eliminar el cliente.');
+        }
     }
+
 }
