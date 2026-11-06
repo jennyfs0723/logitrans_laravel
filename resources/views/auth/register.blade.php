@@ -71,13 +71,24 @@
                     </div>
 
                     <!-- Confirm Password -->
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 12px;">
                         <label for="password_confirmation" style="display: block; font-weight: 600; color: #212529; margin-bottom: 2px; font-size: 12px;">Confirmar Contraseña</label>
                         <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 6px; background-color: #ffffff; color: #212529; box-sizing: border-box; font-size: 13px;" />
                         @error('password_confirmation')
                             <span style="color: #dc3545; font-size: 10px; margin-top: 2px; display: block;">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <!-- Autorización de Tratamiento de Datos (Ley 1581) -->
+                    <div style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 8px;">
+                        <input id="terminos_privacidad" type="checkbox" name="terminos_privacidad" required style="margin-top: 2px; accent-color: #212529; cursor: pointer;" />
+                        <label for="terminos_privacidad" style="font-size: 11px; color: #495057; line-height: 1.3; cursor: pointer;">
+                            Acepto la <a href="{{ route('privacy.policy') }}" target="_blank" style="color: #0d6efd; text-decoration: underline; font-weight: 600;">Política de Tratamiento de Datos</a> (Ley 1581).
+                        </label>
+                    </div>
+                    @error('terminos_privacidad')
+                        <span style="color: #dc3545; font-size: 10px; margin-top: -10px; margin-bottom: 10px; display: block;">{{ $message }}</span>
+                    @enderror
 
                     <!-- Submit Button -->
                     <div style="margin-bottom: 12px;">

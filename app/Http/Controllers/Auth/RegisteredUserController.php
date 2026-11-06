@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'terminos_privacidad' => ['required', 'accepted'], // Validación obligatoria (Ley 1581)
         ]);
 
         $user = User::create([
@@ -42,10 +43,12 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Dispara el evento que genera y envía el correo de verificación vía Resend
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect()->intended(route('welcome', absolute: false));
+        // Redirige al dashboard; el middleware 'verified' bloqueará el acceso si no han confirmado el correo
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 }

@@ -33,10 +33,16 @@
                         <p style="color: #adb5bd; font-size: 14px; margin: 0;">Bienvenido, <strong style="color: #ffffff;">{{ Auth::user()->name }}</strong>. Selecciona un módulo para gestionar las operaciones.</p>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <a href="{{ url('/') }}" style="background-color: transparent; color: #ffffff; border: 1px solid #ced4da; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; transition: all 0.2s;">
                         Ir a la página principal
                     </a>
+
+                    <!-- Enlace de Configuración de Cuenta y Eliminación -->
+                    <a href="{{ route('profile.edit') }}" style="background-color: #495057; color: #ffffff; border: 1px solid #6c757d; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; transition: all 0.2s;">
+                        ⚙️ Configuración de Cuenta
+                    </a>
+
                     <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
                         @csrf
                         <button type="submit" style="background-color: #dc3545; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer;">
@@ -45,6 +51,14 @@
                     </form>
                 </div>
             </div>
+
+            <!-- NOTIFICACIÓN TIPO SHOW DE COLOR VERDE -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 py-3" role="alert" style="background-color: #198754; color: #ffffff; border-radius: 10px;">
+                    <strong>¡Éxito!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
             <!-- CUADRÍCULA DE MÓDULOS -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
@@ -133,10 +147,29 @@
                     </a>
                 </div>
 
+                <!-- Módulo 7: Respaldo Cloud (Nuevo) -->
+                <div style="background-color: rgba(21, 28, 30, 0.92); border: 1px solid #198754; border-radius: 12px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.4);">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #ffffff; font-size: 18px; font-weight: bold; margin: 0;">Respaldo Cloud</h3>
+                            <span style="background-color: #198754; color: #ffffff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px;">Cloud B2</span>
+                        </div>
+                        <p style="color: #adb5bd; font-size: 13px; line-height: 1.5; margin-bottom: 25px;">Genera una copia de seguridad y almacénala de forma segura en Backblaze B2 mediante el protocolo S3.</p>
+                    </div>
+                    <form action="{{ route('backup.crear') }}" method="POST" style="margin: 0;">
+                        @csrf
+                        <button type="submit" style="background-color: #198754; color: #ffffff; width: 100%; text-align: center; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.2s;">
+                            Crear copia de seguridad
+                        </button>
+                    </form>
+                </div>
+
             </div>
 
         </div>
     </div>
 
     <!-- Bootstrap Bundle JS -->
-    <script
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
