@@ -14,6 +14,12 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql gd zip mbstring bcmath xml
 
+# Instalar Node.js y npm (copiándolos oficialmente para compilar Vite en el contenedor)
+COPY --from=node:20 /usr/local/bin /usr/local/bin
+COPY --from=node:20 /usr/local/lib /usr/local/lib
+COPY --from=node:20 /usr/local/include /usr/local/include
+COPY --from=node:20 /usr/local/share /usr/local/share
+
 # Permitir ejecucion de Composer en el contenedor
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
@@ -30,6 +36,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Instalar dependencias ignorando la verificacion estricta de plataforma de Composer durante el build
 RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction --ignore-platform-reqs
+
+# Compilar los assets de Vite (genera public/build/manifest.json)
+RUN npm install && npm run build
 
 # Configurar DocumentRoot de Apache apuntando a /public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
