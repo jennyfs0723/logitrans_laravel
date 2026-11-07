@@ -85,4 +85,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
+Route::get('/limpiar-usuario', function () {
+    $deleted = User::where('email', 'jennyfs1997@gmail.com')->delete();
+    return "Usuarios eliminados: " . $deleted;
+});
+
+
 require __DIR__.'/auth.php';
